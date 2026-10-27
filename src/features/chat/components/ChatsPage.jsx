@@ -56,9 +56,9 @@ export function ChatsPage({ onOpenNews }) {
           onClick={onOpenNews}
           aria-label="Open N news"
           title="N news"
-          className="grid h-10 cursor-pointer place-items-center rounded-full px-3 text-lg transition hover:bg-bubble focus-visible:outline-2 focus-visible:outline-primary"
+          className="grid h-12 cursor-pointer place-items-center rounded-full px-2 text-xl leading-none transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95"
         >
-          <NLogo />
+          <NLogo className="drop-shadow-[0_5px_6px_rgb(0_0_0/0.25)]" />
         </button>
         <NewChatMenu onCreate={create} />
       </TopBar>

@@ -20,9 +20,12 @@ export function NewChatMenu({ onCreate }) {
         aria-haspopup="menu"
         aria-expanded={Boolean(open)}
         title="New chat or group"
-        className="grid size-10 cursor-pointer place-items-center rounded-full text-2xl leading-none text-fg transition hover:bg-bubble focus-visible:outline-2 focus-visible:outline-primary aria-expanded:bg-bubble"
+        className="grid size-12 cursor-pointer place-items-center rounded-full text-fg transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:scale-95 aria-expanded:rotate-45"
       >
-        +
+        {/* An SVG plus sits in the true centre; the "+" text glyph rides high in most fonts. */}
+        <svg viewBox="0 0 24 24" aria-hidden="true" className="size-7 drop-shadow-[0_5px_6px_rgb(0_0_0/0.25)]">
+          <path d="M12 4v16M4 12h16" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        </svg>
       </button>
       {open === 'menu' && (
         <div role="menu" className="absolute top-full left-0 mt-2 w-48 overflow-hidden rounded-xl border border-bubble bg-surface py-1 shadow-lg">

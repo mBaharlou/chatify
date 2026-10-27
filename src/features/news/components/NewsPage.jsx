@@ -23,7 +23,12 @@ export function NewsPage({ me }) {
   useEffect(() => {
     const ctrl = new AbortController()
     fetch(`/api/news?${new URLSearchParams({ country, category })}`, { signal: ctrl.signal })
-      .then((r) => r.json().then((body) => (r.ok ? body : Promise.reject(new Error(body.error)))))
+      // A down API makes Vite's proxy answer 502 with an empty body, so don't parse error bodies blindly.
+      .then(async (r) => {
+        if (r.ok) return r.json()
+        const body = await r.json().catch(() => null)
+        throw new Error(body?.error ?? 'The news server is not running. Start the app with "npm run dev".')
+      })
       .then((items) => setState({ status: 'ready', items }))
       .catch((err) => err.name !== 'AbortError' && setState({ status: 'error', items: [], error: err.message }))
     return () => ctrl.abort()
