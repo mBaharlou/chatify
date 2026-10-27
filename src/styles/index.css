@@ -1,0 +1,169 @@
+@import 'tailwindcss';
+
+/* Light = palette P4 "Ocean breeze"; dark overrides below = P13 "Deep teal ink".
+   The theme is the `data-theme` attribute on <html>, set in index.html before first paint. */
+@theme {
+  --font-sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-logo: 'Baloo 2', system-ui, sans-serif;
+  --font-n: 'Unbounded', system-ui, sans-serif;
+
+  --color-brand: #059669;
+
+  --color-bg: #f0fdfa;
+  --color-surface: #ffffff;
+  --color-fg: #134e4a;
+  --color-muted: #4f7a76;
+  --color-primary: #047857;
+  --color-bubble: #ccfbf1;
+  --color-accent: #0ea5e9;
+}
+
+:root {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #042f2e;
+  --color-surface: #063b3a;
+  --color-fg: #e6fffa;
+  --color-muted: #7fb8b0;
+  --color-primary: #059669;
+  --color-bubble: #0b4b49;
+  --color-accent: #fda4af;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+.live-tape-track {
+  display: flex;
+  width: max-content;
+  animation: live-tape 40s linear infinite;
+}
+
+.live-tape:hover .live-tape-track {
+  animation-play-state: paused;
+}
+
+@keyframes live-tape {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Sleeping mascot (dark mode toggle): eyes squeeze shut, lids fade in, z's drift up. */
+.mascot-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.mascot-lid,
+.mascot-z {
+  opacity: 0;
+  transition: opacity 0.2s ease 0.15s;
+}
+
+[data-sleeping] .mascot-eye {
+  transform: scaleY(0.05);
+}
+
+[data-sleeping] .mascot-lid {
+  opacity: 1;
+}
+
+/* One wink of the right eye, timed to land after the intro's grow-in. */
+.mascot-wink .mascot-eye-r {
+  animation: wink-eye 0.45s ease-in-out 1s;
+}
+
+.mascot-wink .mascot-lid-r {
+  animation: wink-lid 0.45s ease-in-out 1s;
+}
+
+@keyframes wink-eye {
+  35%,
+  65% {
+    transform: scaleY(0.05);
+  }
+}
+
+@keyframes wink-lid {
+  35%,
+  65% {
+    opacity: 1;
+  }
+}
+
+/* Intro: the mascot pops in, winks, then zooms past the viewer while the screen fades. */
+.splash {
+  animation: splash-out 0.5s ease-in 1.9s forwards;
+}
+
+.splash-logo {
+  animation:
+    splash-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+    splash-leave 0.5s ease-in 1.9s forwards;
+}
+
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+
+@keyframes splash-leave {
+  to {
+    transform: scale(1.6);
+  }
+}
+
+@keyframes splash-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+[data-sleeping] .mascot-z {
+  animation: mascot-z 2.4s ease-in-out infinite;
+}
+
+@keyframes mascot-z {
+  0% {
+    opacity: 0;
+    transform: translate(0, 4px);
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6px, -8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-tape-track {
+    animation: none;
+  }
+  .mascot-eye,
+  .mascot-lid,
+  .mascot-z {
+    transition: none;
+  }
+  [data-sleeping] .mascot-z {
+    animation: none;
+    opacity: 1;
+  }
+}
