@@ -90,6 +90,23 @@ src/
 | Tests         | `npm test` (Node's built-in `node --test`, runs `*.test.js`) |
 | Lint          | `npm run lint`    |
 
+## Responsive rules
+
+Checked at 320, 375, 740×360 (phone sideways), 768, 1024 and 1920 wide; keep
+these working when changing layouts:
+
+- No page may scroll sideways (only the live tape and the N category chips
+  scroll inside themselves).
+- `#root` is `100dvh` so mobile address bars don't hide the bottom (the input bar).
+- Touch screens get 16px text in fields (`@media (pointer: coarse)` in
+  `index.css`), or iOS zooms in on tap.
+- Chat input bar: below `lg` the photo/video/file buttons fold into one 📎
+  menu, and below `sm` Send is a ➤ icon, so the text box stays wide.
+- Chats: below `md` the list and the open chat take turns full screen; the
+  list is `md:w-72 lg:w-80`.
+- Short screens (`max-height: 500px`): the N filter header stops being sticky;
+  login centres with `my-auto` so a tall card scrolls instead of losing its top.
+
 ## Conventions
 
 - Code, comments, commit messages, PR descriptions and file names are in English.

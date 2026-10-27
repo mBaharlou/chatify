@@ -37,7 +37,8 @@ export function NewsPage({ me }) {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto min-h-full max-w-3xl border-x border-bubble bg-surface">
-        <div className="sticky top-0 z-10 border-b border-bubble bg-surface/90 backdrop-blur">
+        {/* Not pinned on short screens (phones held sideways), where it would cover most of the feed. */}
+        <div className="sticky top-0 z-10 border-b [@media(max-height:500px)]:static border-bubble bg-surface/90 backdrop-blur">
           <div className="flex items-center justify-between px-4 pt-3">
             <NLogo className="text-2xl" />
             <button

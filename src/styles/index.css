@@ -39,6 +39,20 @@ body,
   height: 100%;
 }
 
+/* On phones 100% includes the area under the browser's address bar; dvh is the part you can see. */
+#root {
+  height: 100dvh;
+}
+
+/* iOS zooms the page into any field with text under 16px; keep fields at 16px on touch screens. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-fg);

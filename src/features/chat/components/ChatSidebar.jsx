@@ -24,7 +24,7 @@ export function ChatSidebar({ chats, activeId, menuId, onSelect, onCloseMenu, on
   const menuRef = useDismiss(menuId !== null, onCloseMenu)
 
   return (
-    <aside className={cn('w-full flex-col border-r border-bubble bg-surface md:w-80', className)}>
+    <aside className={cn('w-full flex-col border-r border-bubble bg-surface md:w-72 lg:w-80', className)}>
       <h2 className="px-5 pt-4 pb-3 text-lg font-semibold">Chats</h2>
       {chats.length === 0 && <p className="px-5 text-sm text-muted">No chats yet. Start one with +.</p>}
       <ul className="flex-1 overflow-y-auto px-2 pb-2">

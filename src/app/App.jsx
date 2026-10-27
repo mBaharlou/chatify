@@ -31,7 +31,7 @@ export default function App() {
       {stage === 'intro' && <Splash onDone={() => setStage('login')} />}
       {welcomeN && (
         <Splash onDone={() => setWelcomeN(false)}>
-          <p className="flex items-center gap-4 font-n text-4xl sm:text-6xl">
+          <p className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 px-4 font-n text-3xl sm:text-6xl">
             Welcome to <NLogo />
           </p>
         </Splash>
@@ -40,7 +40,8 @@ export default function App() {
       {stage !== 'main' ? (
         <>
           <TopBar />
-          <main className="flex flex-1 items-center justify-center p-4">
+          {/* my-auto (not items-center) so a card taller than a short screen scrolls instead of losing its top. */}
+          <main className="flex min-h-0 flex-1 justify-center overflow-y-auto p-4 *:my-auto">
             <LoginPage
               onLogin={(login) => {
                 setMe(displayName(login))

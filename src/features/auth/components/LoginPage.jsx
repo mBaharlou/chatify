@@ -35,7 +35,7 @@ export function LoginPage({ onLogin }) {
     <form
       onSubmit={submit}
       noValidate
-      className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-bubble bg-surface p-8 shadow-sm"
+      className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-bubble bg-surface p-6 shadow-sm sm:p-8"
     >
       <div className="flex flex-col items-center gap-2 text-center">
         <Logo className="text-4xl" />

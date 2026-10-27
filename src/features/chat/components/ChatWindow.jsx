@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { cn } from '@/lib/cn'
 import { EmojiPicker } from '@/features/chat/components/EmojiPicker'
+import { useDismiss } from '@/features/chat/useDismiss'
 
 // The three attach buttons next to Send: what each one accepts and how a message shows it.
 const ATTACH = [
@@ -28,6 +29,10 @@ export function ChatWindow({ chat, onSend, onBack }) {
   const [text, setText] = useState('')
   const listRef = useRef(null)
   const inputRef = useRef(null)
+  // Phones and tablets: the three attach buttons fold into one 📎 menu so the text box keeps its width.
+  const [attachOpen, setAttachOpen] = useState(false)
+  const closeAttach = useCallback(() => setAttachOpen(false), [])
+  const attachRef = useDismiss(attachOpen, closeAttach)
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
@@ -55,6 +60,7 @@ export function ChatWindow({ chat, onSend, onBack }) {
   function attach(kind, e) {
     const file = e.target.files[0]
     e.target.value = '' // so picking the same file again still fires onChange
+    setAttachOpen(false)
     if (!file) return
     // shortcut: the file stays in this tab as a blob URL and is never uploaded; send it to a server once 1:1 chat has a backend.
     onSend({ text: '', attachment: { kind, name: file.name, url: URL.createObjectURL(file) } })
@@ -113,18 +119,42 @@ export function ChatWindow({ chat, onSend, onBack }) {
           autoFocus
           className="min-w-0 flex-1 rounded-full border border-bubble bg-bg px-4 py-2.5 text-fg placeholder:text-muted focus:border-primary focus:outline-none"
         />
-        {ATTACH.map((a) => (
-          <label key={a.kind} title={a.label} className={iconButton}>
-            <span aria-hidden="true">{a.icon}</span>
-            <input type="file" accept={a.accept} aria-label={a.label} onChange={(e) => attach(a.kind, e)} className="sr-only" />
-          </label>
-        ))}
+        <div ref={attachRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setAttachOpen((o) => !o)}
+            aria-label="Attach a photo, video or file"
+            aria-expanded={attachOpen}
+            className={cn(iconButton, 'lg:hidden')}
+          >
+            📎
+          </button>
+          <div
+            className={cn(
+              'gap-2 lg:flex',
+              attachOpen
+                ? 'absolute right-0 bottom-full z-10 mb-2 flex flex-col rounded-xl border border-bubble bg-surface p-1 shadow-lg lg:static lg:mb-0 lg:flex-row lg:border-0 lg:p-0 lg:shadow-none'
+                : 'hidden',
+            )}
+          >
+            {ATTACH.map((a) => (
+              <label key={a.kind} title={a.label} className={iconButton}>
+                <span aria-hidden="true">{a.icon}</span>
+                <input type="file" accept={a.accept} aria-label={a.label} onChange={(e) => attach(a.kind, e)} className="sr-only" />
+              </label>
+            ))}
+          </div>
+        </div>
         <button
           type="submit"
           disabled={!text.trim()}
-          className="h-10 cursor-pointer rounded-full bg-primary px-5 font-semibold text-white hover:brightness-110 disabled:cursor-default disabled:opacity-50"
+          aria-label="Send"
+          className="h-10 shrink-0 cursor-pointer rounded-full bg-primary px-4 font-semibold text-white hover:brightness-110 disabled:cursor-default disabled:opacity-50 sm:px-5"
         >
-          Send
+          <span aria-hidden="true" className="sm:hidden">
+            ➤
+          </span>
+          <span className="hidden sm:inline">Send</span>
         </button>
       </form>
     </section>
