@@ -1,73 +1,76 @@
-import { useState } from 'react'
-import { NLogo } from '@/components/ui/NLogo'
 import { cn } from '@/lib/cn'
-import { NewChatForm } from '@/features/chat/components/NewChatForm'
-import { MOCK_CONVERSATIONS } from '@/features/chat/mockConversations'
+import { useDismiss } from '@/features/chat/useDismiss'
 
-const iconButton =
-  'grid size-9 cursor-pointer place-items-center rounded-full text-fg transition hover:bg-bubble focus-visible:outline-2 focus-visible:outline-primary'
+const menuItem = 'flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm hover:bg-bubble focus-visible:bg-bubble focus-visible:outline-none'
 
-/** Left column listing the user's conversations, with "N" (news) and "+" (new chat) buttons on top. */
-export function ChatSidebar({ onOpenNews }) {
-  // shortcut: chats live in memory only, so new ones vanish on reload; persist them once the backend has users.
-  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS)
-  const [activeId, setActiveId] = useState(null)
-  const [creating, setCreating] = useState(false)
+/** Preview line under a chat's name: the last message (with the sender in groups). */
+function preview(chat) {
+  const last = chat.messages.at(-1)
+  if (!last) return 'No messages yet'
+  if (last.author === 'me') return `You: ${last.text}`
+  return chat.isGroup ? `${last.author}: ${last.text}` : last.text
+}
 
-  function createChat(name) {
-    const chat = { id: crypto.randomUUID(), name, lastMessage: 'New chat - say hi 👋', time: 'now' }
-    setConversations((list) => [chat, ...list])
-    setActiveId(chat.id)
-    setCreating(false)
-  }
+/**
+ * Left column listing chats. Clicking the open chat again shows its options (pin, clear, delete).
+ * `menuId` is the chat whose options are showing; `onCloseMenu` hides them.
+ */
+export function ChatSidebar({ chats, activeId, menuId, onSelect, onCloseMenu, onTogglePin, onClear, onDelete, className }) {
+  // The ref goes on the whole row, so clicking the chat itself toggles the menu instead of dismissing it.
+  const menuRef = useDismiss(menuId !== null, onCloseMenu)
 
   return (
-    <aside className="flex w-full flex-col border-r border-bubble bg-surface md:w-80">
-      <div className="flex items-center gap-1 px-5 pt-4 pb-3">
-        <h2 className="flex-1 text-lg font-semibold">Chats</h2>
-        <button type="button" onClick={onOpenNews} aria-label="Open N news" title="N news" className={cn(iconButton, 'text-sm')}>
-          <NLogo />
-        </button>
-        <button
-          type="button"
-          onClick={() => setCreating((open) => !open)}
-          aria-label="New chat"
-          aria-expanded={creating}
-          title="New chat"
-          className={cn(iconButton, 'text-2xl leading-none', creating && 'bg-bubble')}
-        >
-          +
-        </button>
-      </div>
-
-      {creating && <NewChatForm onCreate={createChat} onCancel={() => setCreating(false)} />}
-
+    <aside className={cn('w-full flex-col border-r border-bubble bg-surface md:w-80', className)}>
+      <h2 className="px-5 pt-4 pb-3 text-lg font-semibold">Chats</h2>
+      {chats.length === 0 && <p className="px-5 text-sm text-muted">No chats yet. Start one with +.</p>}
       <ul className="flex-1 overflow-y-auto px-2 pb-2">
-        {conversations.map((chat) => (
-          <li key={chat.id}>
+        {chats.map((chat) => (
+          <li key={chat.id} ref={chat.id === menuId ? menuRef : undefined}>
             <button
               type="button"
-              onClick={() => setActiveId(chat.id)}
+              onClick={() => onSelect(chat.id)}
               aria-current={chat.id === activeId || undefined}
+              aria-haspopup={chat.id === activeId ? 'menu' : undefined}
+              aria-expanded={chat.id === activeId ? chat.id === menuId : undefined}
+              title={chat.id === activeId ? 'Click again for options' : undefined}
               className={cn(
                 'flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors focus-visible:outline-2 focus-visible:outline-primary',
                 chat.id === activeId ? 'bg-bubble' : 'hover:bg-bubble/60',
               )}
             >
-              <span
-                aria-hidden="true"
-                className="grid size-11 shrink-0 place-items-center rounded-full bg-primary font-semibold text-white"
-              >
-                {chat.name[0].toUpperCase()}
+              <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-full bg-primary font-semibold text-white">
+                {chat.isGroup ? '👥' : chat.name[0].toUpperCase()}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
                   <span className="truncate font-medium">{chat.name}</span>
-                  <span className="shrink-0 text-xs text-muted">{chat.time}</span>
+                  <span className="flex shrink-0 items-center gap-1 text-xs text-muted">
+                    {chat.pinned && <span aria-label="Pinned">📌</span>}
+                    {chat.messages.at(-1)?.time}
+                  </span>
                 </span>
-                <span className="block truncate text-sm text-muted">{chat.lastMessage}</span>
+                <span className="block truncate text-sm text-muted">{preview(chat)}</span>
               </span>
             </button>
+
+            {chat.id === menuId && (
+              <div
+                role="menu"
+                aria-label={`Options for ${chat.name}`}
+                // On the last chats the menu would open below the fold; bring all three options into view.
+                ref={(el) => el?.scrollIntoView({ block: 'nearest' })}
+                className="mx-2 mt-1 mb-2 overflow-hidden rounded-xl border border-bubble bg-surface py-1 shadow-lg">
+                <button type="button" role="menuitem" autoFocus onClick={() => onTogglePin(chat.id)} className={menuItem}>
+                  📌 {chat.pinned ? 'Unpin chat' : 'Pin to top'}
+                </button>
+                <button type="button" role="menuitem" onClick={() => onClear(chat.id)} className={menuItem}>
+                  🧹 Clear conversation
+                </button>
+                <button type="button" role="menuitem" onClick={() => onDelete(chat.id)} className={cn(menuItem, 'text-red-500')}>
+                  🗑️ Delete chat
+                </button>
+              </div>
+            )}
           </li>
         ))}
       </ul>

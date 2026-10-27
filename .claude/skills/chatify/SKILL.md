@@ -11,10 +11,11 @@ same change whenever the stack, layout, conventions or commands change.
 
 ## Status
 
-Built so far: the intro, the login page, the chat sidebar (with sample chats and
-"+ new chat"), and **N**, the news page, which has real news and a live chat per
-story (see App flow). 1:1 chats don't have a chat window or real messaging yet.
-It runs locally only; the user has no plan to publish yet.
+Built so far: the intro, the login page, the chats page (sample chats, new chat
+and new group, a chat window, and pin/clear/delete), and **N**, the news page,
+which has real news and a live chat per story (see App flow). 1:1 and group
+chats are in-browser only (no backend yet). It runs locally only; the user has no
+plan to publish yet.
 
 ## Stack
 
@@ -31,10 +32,17 @@ It runs locally only; the user has no plan to publish yet.
   via `src/services/socket.js`). Each news story is a room named by its id.
 - Database: Node's built-in `node:sqlite`, with the file at `server/data/chatify.db`
   (git-ignored). Table `news_messages`.
-- News source: Google News RSS (free, no key; any search term), parsed with
-  `fast-xml-parser` and cached for 5 minutes. Its terms allow personal,
-  non-commercial use only, so switch to a licensed news API before any public
-  launch.
+- News sources: two free RSS feeds with no keys, parsed with `fast-xml-parser`,
+  merged and cached for 5 minutes (`server/news.js`):
+  - **Bing News**, 2 pages: gives a summary and often an image, so these become
+    the rich cards and are listed first. Its RSS returns nothing for broad or
+    long searches, so `bingUrl` always sends `<country or "global"> <first
+    category word>`.
+  - **Google News**: up to 100 headlines only, for volume.
+  - Duplicates are dropped by normalized title. Both feeds allow personal,
+    non-commercial use only, so switch to a licensed news API before any public
+    launch. Full article text is never copied: cards show the headline, summary,
+    image and a "Read the full story" link.
 - Auth: none yet. Login only checks the email/phone format, the display name
   comes from it, and the server trusts the author name it's sent.
 - Package manager: npm
@@ -150,16 +158,27 @@ src/
    part of the email before @, or `user-` plus the last 4 digits of the phone.
 3. **Main**, with only two routes (`hooks/usePath.js` uses the History API; there's
    no router library, so don't add one for two pages):
-   - `/` chats: `ChatSidebar` has a header with **N** (go to news) and **+**
-     (`NewChatForm`: a name or phone number creates a chat at the top; kept in
-     memory only).
-   - `/n` **N**: clicking N shows a "Welcome to N" splash, then `NewsPage`. That
+   - `/` chats (`ChatsPage` owns the chat state, kept in memory only):
+     - **Top bar** (`components/layout/TopBar.jsx`, the row with the theme toggle
+       on the right): **N** on the far left, then **+**. The user wants them
+       there, NOT next to the "Chats" title.
+     - **+** (`NewChatMenu`) opens a menu with "New chat" or "New group", then
+       `NewChatForm` asks for a name or phone number (chat) or a group name.
+     - Clicking a chat opens `ChatWindow`: header, bubbles (mine on the right in
+       `primary`; groups show the sender), and an input. Sending moves the chat to
+       the top. On phones the window replaces the list, with a ← back button.
+     - Clicking the **already open** chat again shows its options: Pin to top /
+       Unpin (pinned chats are listed first, with 📌), Clear conversation (empties
+       the messages, keeps the chat), and Delete chat.
+   - `/n` **N**: clicking N shows a "Welcome to N" splash (one line: "Welcome to"
+     plus the N logo, not the logo twice), then `NewsPage`. That
      page has a country `<select>` (all 250 ISO countries, named via Intl) and
      category chips (`shared/newsCategories.js`), and fetches
-     `/api/news?country&category`. Each `NewsCard` shows the source, time and
-     headline, a "Discuss" button that opens `NewsChat` (history from
-     `/api/news/:id/messages`, plus live Socket.io messages) and a "Source ↗"
-     link. "← Chats" goes back to `/`.
+     `/api/news?country&category`. Each `NewsCard` (the user wants large,
+     detailed cards) shows the source and time, a big headline, the photo and
+     summary when available, a "Discuss" button that opens `NewsChat` (history
+     from `/api/news/:id/messages`, plus live Socket.io messages) and a "Read the
+     full story at …" link. "← Chats" goes back to `/`.
 
 The live tape and the theme toggle stay visible on every stage.
 

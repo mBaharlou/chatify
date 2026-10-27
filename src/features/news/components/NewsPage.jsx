@@ -31,7 +31,7 @@ export function NewsPage({ me }) {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto min-h-full max-w-2xl border-x border-bubble bg-surface">
+      <div className="mx-auto min-h-full max-w-3xl border-x border-bubble bg-surface">
         <div className="sticky top-0 z-10 border-b border-bubble bg-surface/90 backdrop-blur">
           <div className="flex items-center justify-between px-4 pt-3">
             <NLogo className="text-2xl" />
