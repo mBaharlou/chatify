@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom'
 import { cn } from '@/lib/cn'
 import { EmojiPicker } from '@/features/chat/components/EmojiPicker'
 import { useDismiss } from '@/features/chat/useDismiss'
+import { TEXT_SIZES } from '@/features/settings/useSettings'
 
 // The three attach buttons next to Send: what each one accepts and how a message shows it.
 const ATTACH = [
@@ -24,8 +25,8 @@ function Attachment({ attachment: a, mine }) {
   )
 }
 
-/** The open conversation: header, messages, and the box to write a new one. */
-export function ChatWindow({ chat, onSend, onBack }) {
+/** The open conversation: header, messages, and the box to write a new one. `settings` sets its theme, text size and times. */
+export function ChatWindow({ chat, settings, onSend, onBack }) {
   const [text, setText] = useState('')
   const listRef = useRef(null)
   const inputRef = useRef(null)
@@ -67,7 +68,7 @@ export function ChatWindow({ chat, onSend, onBack }) {
   }
 
   return (
-    <section className="flex min-w-0 flex-1 flex-col bg-bg">
+    <section data-chat-theme={settings.chatTheme} className="flex min-w-0 flex-1 flex-col bg-bg text-fg">
       <div className="flex items-center gap-3 border-b border-bubble bg-surface px-4 py-3">
         <button
           type="button"
@@ -95,13 +96,16 @@ export function ChatWindow({ chat, onSend, onBack }) {
               key={msg.id}
               className={cn(
                 'max-w-[75%] rounded-2xl px-4 py-2 break-words',
+                TEXT_SIZES.find((s) => s.id === settings.textSize)?.className,
                 mine ? 'self-end rounded-br-md bg-primary text-white' : 'self-start rounded-bl-md bg-surface',
               )}
             >
               {chat.isGroup && !mine && <span className="block text-xs font-semibold text-primary">{msg.author}</span>}
               {msg.attachment && <Attachment attachment={msg.attachment} mine={mine} />}
               {msg.text}
-              <span className={cn('mt-0.5 block text-right text-[11px]', mine ? 'text-white/75' : 'text-muted')}>{msg.time}</span>
+              {settings.showTimes && (
+                <span className={cn('mt-0.5 block text-right text-[11px]', mine ? 'text-white/75' : 'text-muted')}>{msg.time}</span>
+              )}
             </li>
           )
         })}

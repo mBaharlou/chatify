@@ -5,6 +5,8 @@ import { ChatSidebar } from '@/features/chat/components/ChatSidebar'
 import { ChatWindow } from '@/features/chat/components/ChatWindow'
 import { NewChatMenu } from '@/features/chat/components/NewChatMenu'
 import { MOCK_CONVERSATIONS } from '@/features/chat/mockConversations'
+import { SettingsDialog } from '@/features/settings/components/SettingsDialog'
+import { useSettings } from '@/features/settings/useSettings'
 
 const clock = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
@@ -15,6 +17,8 @@ export function ChatsPage({ onOpenNews }) {
   const [activeId, setActiveId] = useState(null)
   const [menuId, setMenuId] = useState(null)
   const closeMenu = useCallback(() => setMenuId(null), [])
+  const [settings, updateSettings] = useSettings()
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const active = chats.find((c) => c.id === activeId)
   const ordered = [...chats.filter((c) => c.pinned), ...chats.filter((c) => !c.pinned)]
@@ -79,14 +83,19 @@ export function ChatsPage({ onOpenNews }) {
             setMenuId(null)
           }}
           onDelete={remove}
+          showPreviews={settings.showPreviews}
+          onOpenSettings={() => setSettingsOpen(true)}
           className={active ? 'hidden md:flex' : 'flex'}
         />
         {active ? (
-          <ChatWindow key={active.id} chat={active} onSend={send} onBack={() => setActiveId(null)} />
+          <ChatWindow key={active.id} chat={active} settings={settings} onSend={send} onBack={() => setActiveId(null)} />
         ) : (
-          <section className="hidden flex-1 items-center justify-center text-muted md:flex">Select a chat to start messaging</section>
+          <section data-chat-theme={settings.chatTheme} className="hidden flex-1 items-center justify-center bg-bg text-muted md:flex">
+            Select a chat to start messaging
+          </section>
         )}
       </main>
+      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} settings={settings} onChange={updateSettings} />
     </>
   )
 }

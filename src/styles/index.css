@@ -33,6 +33,73 @@
   --color-accent: #fda4af;
 }
 
+/* Chat themes (Settings): recolour only what sits inside [data-chat-theme], i.e. the open chat.
+   "emerald" has no block: it is the app palette above. Each theme has a light and a dark set. */
+[data-chat-theme='ocean'] {
+  --color-bg: #eff6ff;
+  --color-surface: #ffffff;
+  --color-fg: #1e3a5f;
+  --color-muted: #52708f;
+  --color-primary: #1d4ed8;
+  --color-bubble: #dbeafe;
+}
+[data-chat-theme='sunset'] {
+  --color-bg: #fff7ed;
+  --color-surface: #ffffff;
+  --color-fg: #431407;
+  --color-muted: #8a5a44;
+  --color-primary: #c2410c;
+  --color-bubble: #ffedd5;
+}
+[data-chat-theme='lavender'] {
+  --color-bg: #f5f3ff;
+  --color-surface: #ffffff;
+  --color-fg: #2e1065;
+  --color-muted: #6b5b95;
+  --color-primary: #6d28d9;
+  --color-bubble: #ede9fe;
+}
+[data-chat-theme='graphite'] {
+  --color-bg: #f4f4f5;
+  --color-surface: #ffffff;
+  --color-fg: #18181b;
+  --color-muted: #63636b;
+  --color-primary: #3f3f46;
+  --color-bubble: #e4e4e7;
+}
+:root[data-theme='dark'] [data-chat-theme='ocean'] {
+  --color-bg: #0b1a33;
+  --color-surface: #11264a;
+  --color-fg: #e0ecff;
+  --color-muted: #8fa8cc;
+  --color-primary: #2563eb;
+  --color-bubble: #1a3360;
+}
+:root[data-theme='dark'] [data-chat-theme='sunset'] {
+  --color-bg: #2a1206;
+  --color-surface: #3a1a0a;
+  --color-fg: #fff1e6;
+  --color-muted: #d1a58c;
+  --color-primary: #c2410c;
+  --color-bubble: #4a230f;
+}
+:root[data-theme='dark'] [data-chat-theme='lavender'] {
+  --color-bg: #1a1033;
+  --color-surface: #251845;
+  --color-fg: #f1ecff;
+  --color-muted: #a99cd0;
+  --color-primary: #7c3aed;
+  --color-bubble: #32225c;
+}
+:root[data-theme='dark'] [data-chat-theme='graphite'] {
+  --color-bg: #111113;
+  --color-surface: #1c1c1f;
+  --color-fg: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-primary: #52525b;
+  --color-bubble: #2a2a2e;
+}
+
 html,
 body,
 #root {

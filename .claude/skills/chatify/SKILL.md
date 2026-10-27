@@ -189,7 +189,18 @@ these working when changing layouts:
        cursor, stays open for several picks) and 📷 photo, 🎬 video and 📎 file
        buttons beside Send. A message is `{ text }` or `{ text: '', attachment:
        { kind, name, url } }`; files are blob URLs in the tab, never uploaded.
-     - The bottom of the sidebar links to the user's GitHub (`mBaharlou`).
+     - The bottom of the sidebar links to the user's GitHub (`mBaharlou`), with a
+       ⚙️ **Settings** button beside it. It opens `SettingsDialog`
+       (`features/settings/`), a native `<dialog>` modal styled like the login
+       card but wider, with these settings:
+       - **Chat theme:** 5 themes (Emerald, Ocean, Sunset, Lavender, Graphite).
+       - **Messages:** text size and show message times.
+       - **Privacy:** show message previews.
+       - **About**, plus **Reset to defaults**.
+     - `useSettings` keeps the settings in `localStorage.settings`. A chat theme
+       recolours ONLY the open chat (the user's rule): `data-chat-theme` on the chat
+       `<section>` overrides the colour tokens there. Each theme has a light and a
+       dark set in `index.css`. Emerald is the app palette, so it has no CSS block.
      - Clicking the **already open** chat again shows its options: Pin to top /
        Unpin (pinned chats are listed first, with 📌), Clear conversation (empties
        the messages, keeps the chat), and Delete chat.
