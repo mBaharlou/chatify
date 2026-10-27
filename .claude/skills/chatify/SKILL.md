@@ -140,7 +140,8 @@ src/
   list from right to left forever, with a 34px thin band. Every 3rd word is
   `primary`, and the mascot `LogoMark` sits between words. Do not use stars
   there: the user replaced them with the logo. The user removed "Real-time" from
-  `WORDS` on purpose, so don't add it back. It renders two copies so the loop has no seam, pauses on
+  `WORDS` on purpose, so don't add it back. Each half holds 4 rounds of `WORDS` (wider than any screen, or the tape
+  runs dry before looping; the 160s duration scales with that), and it renders two halves so the loop has no seam, pauses on
   hover and stops under reduced motion (CSS `.live-tape-track` in `index.css`). To
   change the text, edit `WORDS`.
 
@@ -167,6 +168,11 @@ src/
      - Clicking a chat opens `ChatWindow`: header, bubbles (mine on the right in
        `primary`; groups show the sender), and an input. Sending moves the chat to
        the top. On phones the window replaces the list, with a ← back button.
+       The input bar has a 😊 `EmojiPicker` on the left (adds the emoji at the
+       cursor, stays open for several picks) and 📷 photo, 🎬 video and 📎 file
+       buttons beside Send. A message is `{ text }` or `{ text: '', attachment:
+       { kind, name, url } }`; files are blob URLs in the tab, never uploaded.
+     - The bottom of the sidebar links to the user's GitHub (`mBaharlou`).
      - Clicking the **already open** chat again shows its options: Pin to top /
        Unpin (pinned chats are listed first, with 📌), Clear conversation (empties
        the messages, keeps the chat), and Delete chat.

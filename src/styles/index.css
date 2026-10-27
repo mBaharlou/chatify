@@ -47,7 +47,7 @@ body {
 .live-tape-track {
   display: flex;
   width: max-content;
-  animation: live-tape 40s linear infinite;
+  animation: live-tape 160s linear infinite; /* 4x the words, so 4x the time keeps the old speed */
 }
 
 .live-tape:hover .live-tape-track {

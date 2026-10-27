@@ -4,8 +4,10 @@ const WORDS = ['Chat', 'Connect', 'Share', 'Private', 'Friendly', 'Fast', 'Say h
 
 /** Full-width "live tape": a row of words sliding right to left forever. Decorative only. */
 export function LiveTape() {
-  // Two copies so the -50% loop has no seam.
-  const words = [...WORDS, ...WORDS]
+  // Each half must be wider than the screen, or the tape runs out of words before it loops;
+  // 4 rounds of WORDS cover screens up to ~4000px. Two halves so the -50% loop has no seam.
+  const half = Array(4).fill(WORDS).flat()
+  const words = [...half, ...half]
   return (
     <div aria-hidden="true" dir="ltr" className="live-tape overflow-hidden border-y border-bubble bg-surface pt-1 pb-2">
       <div className="live-tape-track gap-8 pe-8">

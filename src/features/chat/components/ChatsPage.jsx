@@ -33,9 +33,9 @@ export function ChatsPage({ onOpenNews }) {
     setMenuId(null)
   }
 
-  // A new message moves the chat to the top of the (unpinned) list.
-  function send(text) {
-    const msg = { id: crypto.randomUUID(), author: 'me', text, time: clock() }
+  // A new message ({ text } or { text: '', attachment }) moves the chat to the top of the (unpinned) list.
+  function send(content) {
+    const msg = { id: crypto.randomUUID(), author: 'me', ...content, time: clock() }
     setChats((list) => {
       const chat = list.find((c) => c.id === activeId)
       return [{ ...chat, messages: [...chat.messages, msg] }, ...list.filter((c) => c !== chat)]

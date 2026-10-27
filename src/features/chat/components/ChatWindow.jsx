@@ -1,10 +1,33 @@
 import { useEffect, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { cn } from '@/lib/cn'
+import { EmojiPicker } from '@/features/chat/components/EmojiPicker'
+
+// The three attach buttons next to Send: what each one accepts and how a message shows it.
+const ATTACH = [
+  { kind: 'photo', icon: '📷', label: 'Send a photo', accept: 'image/*' },
+  { kind: 'video', icon: '🎬', label: 'Send a video', accept: 'video/*' },
+  { kind: 'file', icon: '📎', label: 'Send a file', accept: undefined },
+]
+const iconButton =
+  'grid size-10 shrink-0 cursor-pointer place-items-center rounded-full text-xl transition-transform hover:scale-110 has-focus-visible:outline-2 has-focus-visible:outline-primary'
+
+/** A photo, video or file inside a bubble. */
+function Attachment({ attachment: a, mine }) {
+  if (a.kind === 'photo') return <img src={a.url} alt={a.name} className="max-h-72 rounded-xl" />
+  if (a.kind === 'video') return <video src={a.url} controls className="max-h-72 rounded-xl" />
+  return (
+    <a href={a.url} download={a.name} className={cn('flex items-center gap-2 font-medium underline-offset-2 hover:underline', mine ? 'text-white' : 'text-primary')}>
+      📎 <span className="truncate">{a.name}</span>
+    </a>
+  )
+}
 
 /** The open conversation: header, messages, and the box to write a new one. */
 export function ChatWindow({ chat, onSend, onBack }) {
   const [text, setText] = useState('')
   const listRef = useRef(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight })
@@ -14,8 +37,27 @@ export function ChatWindow({ chat, onSend, onBack }) {
     e.preventDefault()
     const t = text.trim()
     if (!t) return
-    onSend(t.slice(0, 2000))
+    onSend({ text: t.slice(0, 2000) })
     setText('')
+  }
+
+  // Put the emoji where the cursor is, then keep typing after it.
+  function addEmoji(emoji) {
+    const input = inputRef.current
+    const start = input.selectionStart ?? text.length
+    const end = input.selectionEnd ?? text.length
+    // flushSync writes the new value into the input first, so the cursor can be placed after the emoji.
+    flushSync(() => setText(text.slice(0, start) + emoji + text.slice(end)))
+    input.focus()
+    input.setSelectionRange(start + emoji.length, start + emoji.length)
+  }
+
+  function attach(kind, e) {
+    const file = e.target.files[0]
+    e.target.value = '' // so picking the same file again still fires onChange
+    if (!file) return
+    // shortcut: the file stays in this tab as a blob URL and is never uploaded; send it to a server once 1:1 chat has a backend.
+    onSend({ text: '', attachment: { kind, name: file.name, url: URL.createObjectURL(file) } })
   }
 
   return (
@@ -51,6 +93,7 @@ export function ChatWindow({ chat, onSend, onBack }) {
               )}
             >
               {chat.isGroup && !mine && <span className="block text-xs font-semibold text-primary">{msg.author}</span>}
+              {msg.attachment && <Attachment attachment={msg.attachment} mine={mine} />}
               {msg.text}
               <span className={cn('mt-0.5 block text-right text-[11px]', mine ? 'text-white/75' : 'text-muted')}>{msg.time}</span>
             </li>
@@ -58,8 +101,10 @@ export function ChatWindow({ chat, onSend, onBack }) {
         })}
       </ul>
 
-      <form onSubmit={send} className="flex gap-2 border-t border-bubble bg-surface p-3">
+      <form onSubmit={send} className="flex items-center gap-1 border-t border-bubble bg-surface p-3 sm:gap-2">
+        <EmojiPicker onPick={addEmoji} />
         <input
+          ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={2000}
@@ -68,10 +113,16 @@ export function ChatWindow({ chat, onSend, onBack }) {
           autoFocus
           className="min-w-0 flex-1 rounded-full border border-bubble bg-bg px-4 py-2.5 text-fg placeholder:text-muted focus:border-primary focus:outline-none"
         />
+        {ATTACH.map((a) => (
+          <label key={a.kind} title={a.label} className={iconButton}>
+            <span aria-hidden="true">{a.icon}</span>
+            <input type="file" accept={a.accept} aria-label={a.label} onChange={(e) => attach(a.kind, e)} className="sr-only" />
+          </label>
+        ))}
         <button
           type="submit"
           disabled={!text.trim()}
-          className="cursor-pointer rounded-full bg-primary px-5 font-semibold text-white hover:brightness-110 disabled:cursor-default disabled:opacity-50"
+          className="h-10 cursor-pointer rounded-full bg-primary px-5 font-semibold text-white hover:brightness-110 disabled:cursor-default disabled:opacity-50"
         >
           Send
         </button>
